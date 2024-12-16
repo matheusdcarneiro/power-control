@@ -63,14 +63,14 @@ def get_sinr(power_vec, channel, n_power):
     for ue in range(num_ue):
 
         # Interest signal received power
-        interest = power_vec[ue] * channel[:, ue, better_ch[ue]]
+        interest = dbm2lin(power_vec[ue]) * channel[:, ue, better_ch[ue]]
 
         # Interference signal received power sum
         interference = 0
 
         for i_ue in range(num_ue):
 
-            interference += power_vec[i_ue] * channel[:, i_ue, better_ch[ue]]
+            interference += dbm2lin(power_vec[i_ue]) * channel[:, i_ue, better_ch[ue]]
 
         interference -= interest
 
