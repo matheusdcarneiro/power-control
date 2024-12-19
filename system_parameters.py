@@ -78,4 +78,3 @@ def get_sinr(power_vec, channel, n_power):
         sinr_vec[ue] = interest / (interference + n_power)
 
     return sinr_vec
-
