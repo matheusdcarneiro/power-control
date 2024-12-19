@@ -1,7 +1,7 @@
 import numpy as np
 from sim_functions import *
 
-def get_channel(dis_matrix, shadowing_matrix, rayleigh_matrix):
+def get_channel(dis_matrix, shadowing_matrix, rayleigh_matrix):    
     ''' 
     Returns the channel  matrix [in linear] between an UE and each AP. 
 
@@ -13,7 +13,7 @@ def get_channel(dis_matrix, shadowing_matrix, rayleigh_matrix):
         The shadowing matrix between each UE and AP.
     rayleigh_matrix : numpy_ndarray
         The rayleigh matrix between each UE and AP through each channel, representing fast fading effect.
-    '''      
+    '''  
 
     ch = shadowing_matrix * (rayleigh_matrix**2) * (1e-4 / (dis_matrix**4))
 

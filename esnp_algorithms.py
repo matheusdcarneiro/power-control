@@ -77,7 +77,15 @@ def esnp_maxmin(channel, pmax, pmin, step, delta, epsilon, time, n_power):
             # Keep power values between minimum and maximum power
             power_vec = np.clip(power_vec, pmin, pmax)
 
-    return conv_sinr
+    post_conv_power = np.zeros(num_ue)
+
+    for p in range(num_ue):
+
+        post_conv_power[p] = t_powers[np.argmin(np.absolute(conv_power[p] - t_powers))]
+
+    post_conv_sinr = get_sinr(post_conv_power, channel, n_power)
+
+    return post_conv_sinr, post_conv_power
 
 def esnp_maxsum(channel, pmax, pmin, step, delta, epsilon, time, n_power):
     ''' 
@@ -154,7 +162,15 @@ def esnp_maxsum(channel, pmax, pmin, step, delta, epsilon, time, n_power):
             # Keep power values between minimum and maximum power
             power_vec = np.clip(power_vec, pmin, pmax)
 
-    return conv_sinr, conv_power
+    post_conv_power = np.zeros(num_ue)
+
+    for p in range(num_ue):
+
+        post_conv_power[p] = t_powers[np.argmin(np.absolute(conv_power[p] - t_powers))]
+
+    post_conv_sinr = get_sinr(post_conv_power, channel, n_power)
+
+    return post_conv_sinr, post_conv_power
 
 def esnp_maxproduct(channel, pmax, pmin, step, delta, epsilon, time, n_power):
     ''' 
@@ -232,4 +248,12 @@ def esnp_maxproduct(channel, pmax, pmin, step, delta, epsilon, time, n_power):
             # Keep power values between minimum and maximum power
             power_vec = np.clip(power_vec, pmin, pmax)
 
-    return conv_sinr
+    post_conv_power = np.zeros(num_ue)
+
+    for p in range(num_ue):
+
+        post_conv_power[p] = t_powers[np.argmin(np.absolute(conv_power[p] - t_powers))]
+
+    post_conv_sinr = get_sinr(post_conv_power, channel, n_power)
+
+    return post_conv_sinr, post_conv_power
