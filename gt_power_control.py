@@ -58,10 +58,11 @@ def minimizer_power(alpha, prev_power, channel):
         interference -= interest
         inv_interference -= (channel[:, ue, better_ch[ue]]**(2*alpha)) / interest
 
-        power_vec[]
+        power_vec[ue] = np.sqrt(interference*(inv_interference)**(-1))
 
+    return power_vec
 
-def game_pas(p_max, alpha, num_ue, epsilon):
+def game_pas(pmax, alpha, num_ue, epsilon, channel):
     
     power_vec = np.ones(num_ue)
     
@@ -69,6 +70,25 @@ def game_pas(p_max, alpha, num_ue, epsilon):
     
     while True:
         
-            
-    
-    
+        min_power = minimizer_power(alpha, power_vec, channel)
+        min_power = np.clip(min_power, 0, pmax)
+
+        prev_power_vec = power_vec.copy()
+
+        for ue in range(num_ue):
+
+            aux_power_vec = power_vec.copy()
+            aux_power_vec[ue] = min_power[ue]
+
+            if payoff_function(alpha, power_vec, channel)[ue] - payoff_function(alpha, aux_power_vec, channel)[ue] > epsilon:
+                power_vec[ue] = aux_power_vec[ue]
+
+        iter += 1
+
+        if (power_vec == prev_power_vec).all():
+
+            break
+
+    print(iter)
+
+    return power_vec
