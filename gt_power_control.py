@@ -44,7 +44,7 @@ def minimizer_power(alpha, prev_power, channel):
     for ue in range(num_ue):
         
         # Interest signal received power
-        interest = dbm2lin(power_vec[ue]) * channel[:, ue, better_ch[ue]]**alpha
+        interest = dbm2lin(prev_power[ue]) * channel[:, ue, better_ch[ue]]**alpha
         
         # Interference and inverse interference signal received power sums
         interference = 0
@@ -52,37 +52,51 @@ def minimizer_power(alpha, prev_power, channel):
         
         for i_ue in range(num_ue):
 
-            interference += dbm2lin(power_vec[i_ue]) * channel[:, i_ue, better_ch[ue]]**alpha
-            inv_interference += (channel[:, ue, better_ch[ue]]**(2*alpha)) / (dbm2lin(power_vec[i_ue]) * channel[:, i_ue, better_ch[ue]]**alpha)
+            interference += dbm2lin(prev_power[i_ue]) * channel[:, i_ue, better_ch[ue]]**alpha
+            inv_interference += (channel[:, ue, better_ch[ue]]**(2*alpha)) / (dbm2lin(prev_power[i_ue]) * channel[:, i_ue, better_ch[ue]]**alpha)
             
         interference -= interest
         inv_interference -= (channel[:, ue, better_ch[ue]]**(2*alpha)) / interest
 
         power_vec[ue] = np.sqrt(interference*(inv_interference)**(-1))
 
-    return power_vec
+    return lin2dbm(power_vec)
 
 def game_pas(pmax, alpha, num_ue, epsilon, channel):
     
-    power_vec = np.ones(num_ue)
-    
-    iter = 0
+    power_vec = np.ones(num_ue) * pmax
+
+    #power_evolution = []
+
+    iter = 1
     
     while True:
         
         min_power = minimizer_power(alpha, power_vec, channel)
-        min_power = np.clip(min_power, 0, pmax)
+        print(iter)
+        #min_power = np.clip(min_power, 0, pmax)
+        #print('power vec', power_vec)
+        #print('minimizer', min_power)
 
         prev_power_vec = power_vec.copy()
+        print(payoff_function(alpha, prev_power_vec, channel), '\n')
 
         for ue in range(num_ue):
 
-            aux_power_vec = power_vec.copy()
+            aux_power_vec = prev_power_vec.copy()
+
             aux_power_vec[ue] = min_power[ue]
 
-            if payoff_function(alpha, power_vec, channel)[ue] - payoff_function(alpha, aux_power_vec, channel)[ue] > epsilon:
+            #print(prev_power_vec)
+            #print(aux_power_vec, '\n')
+            #print(payoff_function(alpha, prev_power_vec, channel)[ue])
+            #print(payoff_function(alpha, aux_power_vec, channel)[ue], '\n')
+
+            if payoff_function(alpha, prev_power_vec, channel)[ue] - payoff_function(alpha, aux_power_vec, channel)[ue] > epsilon:
                 power_vec[ue] = aux_power_vec[ue]
 
+
+        #power_evolution.append(power_vec)
         iter += 1
 
         if (power_vec == prev_power_vec).all():
@@ -91,4 +105,4 @@ def game_pas(pmax, alpha, num_ue, epsilon, channel):
 
     print(iter)
 
-    return power_vec
+    return power_vec #, power_evolution
