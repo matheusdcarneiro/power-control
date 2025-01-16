@@ -66,43 +66,45 @@ def game_pas(pmax, alpha, num_ue, epsilon, channel):
     
     power_vec = np.ones(num_ue) * pmax
 
-    #power_evolution = []
+    power_evolution = []
 
     iter = 1
     
     while True:
-        
+
+        print('\n', iter)
+
         min_power = minimizer_power(alpha, power_vec, channel)
-        print(iter)
-        #min_power = np.clip(min_power, 0, pmax)
-        #print('power vec', power_vec)
-        #print('minimizer', min_power)
-
+        #min_power = np.clip(min_power, lin2dbm(1e-5), pmax)
+        
+        #print(min_power, '\n')
+        
         prev_power_vec = power_vec.copy()
-        print(payoff_function(alpha, prev_power_vec, channel), '\n')
-
+        power_evolution.append(prev_power_vec)
+        
         for ue in range(num_ue):
 
             aux_power_vec = prev_power_vec.copy()
 
             aux_power_vec[ue] = min_power[ue]
-
+            
             #print(prev_power_vec)
             #print(aux_power_vec, '\n')
-            #print(payoff_function(alpha, prev_power_vec, channel)[ue])
-            #print(payoff_function(alpha, aux_power_vec, channel)[ue], '\n')
 
-            if payoff_function(alpha, prev_power_vec, channel)[ue] - payoff_function(alpha, aux_power_vec, channel)[ue] > epsilon:
+            print(payoff_function(alpha, prev_power_vec, channel)[ue] - payoff_function(alpha, aux_power_vec, channel)[ue])
+
+            if payoff_function(alpha, prev_power_vec, channel)[ue] - payoff_function(alpha, aux_power_vec, channel)[ue] > epsilon:  
                 power_vec[ue] = aux_power_vec[ue]
+            elif: 
+                power_vec[ue] = prev_power_vec[ue]
 
 
-        #power_evolution.append(power_vec)
         iter += 1
+
+        #print(power_vec)
 
         if (power_vec == prev_power_vec).all():
 
             break
 
-    print(iter)
-
-    return power_vec #, power_evolution
+    return power_vec, power_evolution
