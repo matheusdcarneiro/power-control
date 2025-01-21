@@ -7,6 +7,7 @@ def payoff_function(alpha, power_vec, channel):
 
     mu_vec = np.zeros(num_ue)
     
+    # Gets the better channel coefficient of each interest UE
     better_ch = np.argmax(channel[0], axis=1)
     
     for ue in range(num_ue):
@@ -18,6 +19,8 @@ def payoff_function(alpha, power_vec, channel):
         interference = 0
         inv_interference = 0
         
+        print('\n ue', ue)
+        
         for i_ue in range(num_ue):
 
             interference += dbm2lin(power_vec[i_ue]) * channel[:, i_ue, better_ch[ue]]**alpha
@@ -25,10 +28,13 @@ def payoff_function(alpha, power_vec, channel):
 
         interference -= interest
         inv_interference -= 1/interest
-
+        
         # Calculate mu value of each UE
         gamma = interference / interest
         lamb = interest * inv_interference
+        
+        print('gamma', gamma)
+        print('lambda', lamb)
         
         mu_vec[ue] = gamma + lamb
         
@@ -72,32 +78,31 @@ def game_pas(pmax, alpha, num_ue, epsilon, channel):
     
     while True:
 
-        print('\n', iter)
+        #print('\n', iter)
 
         min_power = minimizer_power(alpha, power_vec, channel)
         #min_power = np.clip(min_power, lin2dbm(1e-5), pmax)
         
         #print(min_power, '\n')
-        
+
+        # p(l)        
         prev_power_vec = power_vec.copy()
         power_evolution.append(prev_power_vec)
         
         for ue in range(num_ue):
 
+            # p* for each ue
             aux_power_vec = prev_power_vec.copy()
-
             aux_power_vec[ue] = min_power[ue]
             
             #print(prev_power_vec)
             #print(aux_power_vec, '\n')
 
-            print(payoff_function(alpha, prev_power_vec, channel)[ue] - payoff_function(alpha, aux_power_vec, channel)[ue])
+            #print(payoff_function(alpha, prev_power_vec, channel)[ue] - payoff_function(alpha, aux_power_vec, channel)[ue])
 
             if payoff_function(alpha, prev_power_vec, channel)[ue] - payoff_function(alpha, aux_power_vec, channel)[ue] > epsilon:  
+                # p(l) = p* if payoff function is minimized, doesnt change if it isnt
                 power_vec[ue] = aux_power_vec[ue]
-            elif: 
-                power_vec[ue] = prev_power_vec[ue]
-
 
         iter += 1
 
